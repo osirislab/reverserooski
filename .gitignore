@@ -1,2 +1,5 @@
 venv
 env
+
+cert.pem
+dhparam.pem
