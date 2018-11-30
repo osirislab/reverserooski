@@ -44,6 +44,7 @@ class Host:
         self.log('"{}" command submitted')
 
     def get_pending(self):
-        ret=self.pending_cmds.copy()
+        ret=dict()
+        ret['cmds']=self.pending_cmds.copy()
         self.pending_cmds.clear()
         return ret

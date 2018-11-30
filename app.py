@@ -42,6 +42,7 @@ def view_pending():
 @app.route('/get_pending', methods=['POST'])
 def get_pending():
     hostname=request.form['hostname']
+    #print(json.dumps(hosts[hostname].get_pending()))
     return json.dumps(hosts[hostname].get_pending())
 
 @app.route('/submit_pending', methods=['POST'])

