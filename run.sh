@@ -2,4 +2,4 @@
 
 [ -d venv ] || ./setup.sh
 . ./venv/bin/activate
-python main.py
+python app.py
