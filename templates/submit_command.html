@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <div class="jumbotron">
+                <h4>Submit Command</h4>
+                <form method="post">
+                    <select name="hostname">
+                        {% for hostname in hosts %}
+                            <option value="{{ hostname }}">{{ hostname }}</option>
+                        {% endfor %}
+                    </select> 
+                    <input name="command" placeholder="command" type="text">
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-4"></div>
+    </div>
+{% endblock %}
