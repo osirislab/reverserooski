@@ -1,0 +1,7 @@
+cert.pem
+dhparam.pem
+venv
+env
+.git
+.gitignore
+
