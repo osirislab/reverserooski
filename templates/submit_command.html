@@ -7,9 +7,11 @@
             <div class="jumbotron">
                 <h4>Submit Command</h4>
                 <form method="post">
-                    <select name="hostname">
-                        {% for hostname in hosts %}
-                            <option value="{{ hostname }}">{{ hostname }}</option>
+                    <select name="hostid">
+                        {% for host in hosts %}
+                            <option value="{{ host.hostid }}">
+                                {{ host.hostid }}:{{ host.hostname }}
+                            </option>
                         {% endfor %}
                     </select> 
                     <input name="command" placeholder="command" type="text">
