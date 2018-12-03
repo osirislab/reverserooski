@@ -13,7 +13,7 @@ def sha256(s):
 def does_user_exist(user_id):
     try:
         return get_db().execute(
-            'SELECT * FROM users WHERE id = ?;',
+            'SELECT * FROM Users WHERE id = ?;',
             (user_id,)
         ).fetchone() is not None
     except:
@@ -23,7 +23,7 @@ def switch_user(user_id):
     try:
         with get_db() as db:
             username = db.execute(
-                'SELECT username FROM users WHERE id = ?;',
+                'SELECT username FROM Users WHERE id = ?;',
                 (user_id,)
             ).fetchone()
         if username is not None:
@@ -42,7 +42,7 @@ def login():
         with get_db() as db:
             error = None
             res = db.execute(
-                'SELECT id, username FROM users WHERE username = ? and password = ?',
+                'SELECT id, username FROM Users WHERE username = ? and password = ?',
                 (username, password,)
             ).fetchone()
         if res is not None:
@@ -72,7 +72,7 @@ def load_logged_in_user():
             g.user_id = None
         else:
             g.user_id, g.username = get_db().execute(
-                'SELECT id, username FROM users WHERE id = ?',
+                'SELECT id, username FROM Users WHERE id = ?',
                 (user_id,)
             ).fetchone()
     except:
