@@ -6,8 +6,6 @@ HOST=localhost:5000
 HOSTNAME=`hostname`
 UNAME=`uname -a`
 
-nice curl http://$HOST/register_client --data "hostname=$HOSTNAME&uname=$UNAME"
-
 mkdir -p /tmp/lolz && cd /tmp/lolz
 
 
