@@ -6,5 +6,5 @@ logs
 cert.pem
 dhparam.pem
 
-users.db
+*.db
 __pycache__
