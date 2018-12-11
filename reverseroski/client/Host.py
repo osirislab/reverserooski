@@ -9,15 +9,52 @@ import art
 class Host:
     class _Host_Exception(Exception):
         pass
+
+    class Commands:
+        def __init__(self, hostid):
+            self.commands=list()
+            self._load_command_state(hostid)
+
+        def __enter__(self):
+            return self
+
+        def __del__(self):
+            pass
+
+        def __exit__(self, *_):
+            pass
+
+        def __iter__(self):
+            return iter(self.commands)
+
+        def _load_command_state(self, hostid):
+            with sqlite3.connect(DB_NAME) as db:
+                commands=db.execute(
+                    'SELECT command, commandid, hostid, stdout, pending ' + \
+                    'FROM Commands WHERE hostid = ?;',
+                    (hostid,)
+                ).fetchall()
+                for command in commands:
+                    self.commands.append(self.Command(*command))
+
+        def dump_state(self):
+            with sqlite3.connect(DB_NAME) as db:
+                for command in self:
+                    db.execute(*command.dumps())
+                db.commit()
+
     class Command:
         _DUMP_SQL=open('sql/command_dump.sql').read()
-        def __init__(self, command,  commandid, hostid, stdout=None, pending=False, timestamp=None):
+        def __init__(self, command,  commandid, hostid, stdout=None, pending=True, timestamp=None):
             self.command=command
             self.commandid=commandid
             self.hostid=hostid
             self.timestamp=timestamp if timestamp is not None else str(datetime.utcnow())
             self.stdout='' if stdout is None else stdout
-            self.pending=pending
+            self.pending=bool(pending)
+
+        def __enter__(self):
+            return self
 
         def submit_stdout(self, stdout):
             assert self.pending
@@ -54,15 +91,25 @@ class Host:
         self.commands=list()
         self._load_command_state()
 
-    def _load_command_state(self):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.dump_state()
+
+    def __del__(self):
+        self.dump_state()
+
+
+    def dump_command_state(self, n=None):
+        raise DeprecationWarning()
         with sqlite3.connect(DB_NAME) as db:
-            commands=db.execute(
-                'SELECT command, commandid, hostid, stdout, pending ' + \
-                'FROM Commands WHERE hostid = ?;',
-                (self.hostid,)
-            ).fetchall()
-            for command in commands:
-                self.commands.append(self.Command(*command))
+            if n is None:
+                for sql, args in (command.dumps() for command in self.commands):
+                    db.execute(sql, args)
+            else:
+                db.execute(*self.commands[n].dumps())
+            db.commit()
 
     def dumps(self):
         return self._DUMP_SQL, (
@@ -70,28 +117,25 @@ class Host:
         )
 
     def dump_state(self):
-        #print(art.star, 'attempting to dump state of {}:{}'.format(self.hostname, self.hostid), end='\r')
         with sqlite3.connect(DB_NAME) as db:
-            for sql, args in (command.dumps() for command in self.commands):
-                db.execute(sql, args)
             sql, args = self.dumps()
             db.execute(sql, args)
             db.commit()
-        #print(art.plus, 'successfully dumped state of {}:{}'.format(self.hostname,self.hostid), ' '*10)
 
-    def add_command(self, command):
+    def add_command(self, command):        
         self.commands.append(
             self.Command(command, self.hostid, len(self.commands))
         )
-        self.dump_state()
 
     def submit_pending_command(self, commandid, stdout):
         assert self.commands[commandid].pending
         self.commands[commandid].submit_stdout(stdout)
 
     def get_pending(self):
+        for i in self.commands:
+            print(i.state())
         return list(map(
-            lambda command: command.command, filter(
+            lambda command: (command.commandid, command.command,), filter(
                 lambda command: command.pending,
                 self.commands
             )

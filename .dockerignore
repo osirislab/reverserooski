@@ -1,7 +1,11 @@
-cert.pem
-dhparam.pem
 venv
 env
+
+setup.sh
+run.sh
+
+dev.py
+
 .git
 .gitignore
 

@@ -1,16 +1,12 @@
-FROM ubuntu:latest
+FROM python:3.7
 MAINTAINER big_J
 
 ENV NAME=reverseroski
+ENV PORT=5000
 
-WORKDIR /${NAME}
 COPY . /${NAME}
+WORKDIR /${NAME}
 
-RUN apt-get update
-#RUN apt-get install -y apt-utils
-RUN apt-get install -y python3 python3-pip
-RUN /${NAME}/setup.sh
+RUN pip install -r requirements.txt
 
-EXPOSE 80 5000 5001 5002 5003 5004 5005 5006 5007 5008 5009
-
-CMD ./run.sh
+CMD gunicorn -b 0.0.0.0:${PORT} -w 8 reverseroski:app

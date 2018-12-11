@@ -1,29 +1,32 @@
 #!/usr/bin/env python3
 
-from Host import Host, Hosts # load_state, dump_state
-from auth import auth_bp, login_required
-from flask import Flask, request
-from threading import Lock
-from render import render
-import hashlib
-import random
-import json
-import time
-import sys
-import art
+from flask import Flask, request, abort, render_template, redirect, flash, url_for
+from flask_bootstrap import Bootstrap
+from flask_login import current_user, login_required
+from flask_sqlalchemy import SQLAlchemy
 
-registration_lock=Lock()
+from .config import Config
 
 app=Flask(__name__,static_url_path='/static')
-app.register_blueprint(auth_bp)
-app.config.from_mapping(
-    SECRET_KEY=b'\xc8L\xb2}\x19\xd0s\xdcB\xb0G\xb7\x93\xb8D\xb3=\x9f\xe1\xeb}{K\x8e'
-)
-client_text=open('client.sh').read().format(python=open('client.py').read())
 
-hosts=Hosts() # hostid -> Host
+app.config.from_object(Config)
+
+Bootstrap(app)
+db = SQLAlchemy(app)
+
+from .auth import auth
+app.register_blueprint(auth)
 
 
+@app.route('/')
+@login_required
+def index():
+    return render('index.html')
+
+
+
+
+'''
 @app.route('/client')
 def client():
     return client_text
@@ -47,14 +50,10 @@ def register_client():
 @app.route('/get_pending', methods=['POST'])
 def get_pending():
     hostid=int(request.form['hostid'])
-    return json.dumps({'cmds':hosts.get(hostid).get_pending()})
+    pending=hosts.get(hostid).get_pending()
+    print(pending)
+    return json.dumps({'cmds':pending})
 
-
-@app.route('/')
-@app.route('/home')
-@login_required
-def index():
-    return render('index.html')
 
 
 @app.route('/view_host/<hostid>')
@@ -104,9 +103,4 @@ def submit_cmd():
 def console():
     pass
 
-if __name__ == "__main__":
-    app.run(
-#        debug=True,
-        host='0.0.0.0',
-        port=5000
-    )
+'''

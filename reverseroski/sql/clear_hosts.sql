@@ -1,4 +1,5 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 DELETE FROM Hosts;
+DELETE FROM Commands;
 COMMIT;

@@ -1,2 +1,7 @@
+bootstrap-flask
 flask
-colorama
+flask-login
+flask-sqlalchemy
+flask-wtf
+pillow
+gunicorn

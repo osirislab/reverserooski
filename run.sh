@@ -2,4 +2,5 @@
 
 [ -d venv ] || ./setup.sh
 . ./venv/bin/activate
-python app.py
+
+python3 dev.py
