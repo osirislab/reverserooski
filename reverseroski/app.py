@@ -14,9 +14,13 @@ app.config.from_object(Config)
 Bootstrap(app)
 db = SQLAlchemy(app)
 
-from .auth import auth
-app.register_blueprint(auth)
 
+from .auth import auth
+from .client import client
+from .dashboard import dashboard
+app.register_blueprint(auth)
+app.register_blueprint(client)
+app.register_blueprint(dashboard)
 
 @app.route('/')
 @login_required
