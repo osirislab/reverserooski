@@ -1,6 +1,6 @@
 
 
-.PONY: setup build run clean
+.PHONY: setup build run clean
 
 all: build
 
