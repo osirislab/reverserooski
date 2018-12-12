@@ -8,7 +8,7 @@ from ..models import Client, Command
 dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 
-@client.route('/')
+@dashboard.route('/')
 def serve_client():
     return ''
 
