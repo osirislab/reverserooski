@@ -2,15 +2,72 @@ from flask import request, redirect, url_for, flash, render_template, Blueprint
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
+from .models import ClientTable
+
+from ..models import Client, Command, NavItem
 from ..app import db
-from ..models import Client, Command
 
 dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 
+def get_navitems():
+    """
+    TODO: Make this cacheable 
+
+    Makes a iterble list of NavItems that will be 
+    used in the dashboard template. The NavItems will 
+    correspond to each registered client.The NavItem class 
+    is defined in reverseroski/reverseroski/models.py.
+
+    :return [ NavItem ]: list of NavItem objects
+    """
+    clients=Client.query.filter_by().all()
+    return [
+        NavItem(
+            text=client.hostname,
+            link="/dashboard/view/{clientid}".format(
+                clientid=client.id
+            )
+        ) for client in clients
+    ]
+
+def make_client_table(clientid):
+    """
+    Makes a table object from client data. Used in the 
+    dashboard client view. The table object is used in 
+    the dashboard jinja template. The ClientTable class
+    is defined in reverseroski/reverseroski/models.py. 
+    
+    :param int clientid: id number for client
+    :return ClientTable: client table object
+    """
+    client=Client.query.filter_by(id=clientid).first()
+    return ClientTable(
+        headers=[
+            'timestamp',
+            'command',
+            'pending',
+            'stdout',
+        ], client=client,
+    )
+
 @dashboard.route('/')
-def serve_client():
-    return ''
+@login_required
+def serve_dashboard():
+    return render_template(
+        'dashboard.html',
+        navitems=get_navitems(),
+    )
+
+@dashboard.route('/view/<clentid:int>')
+@login_required
+def serve_view(clientid):
+    return render_template(
+        'dashboard_view.html',
+        navitems=get_navitems(),
+        table_data=make_client_table(clientid)
+    )
+
 
 # @client.route('/register', methods=['POST'])
 # def register_client():
