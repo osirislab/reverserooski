@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from os import urandom
 from hashlib import sha256
 
-from .forms import RegisterClientForm
+from .forms import RegisterClientForm, PingForm
 from ..app import db
 from ..models import Client, Command
 
@@ -42,8 +42,17 @@ def register_client():
 
 @client.route('/get_pending', methods=['POST'])
 def get_pending():
-    return json.dumps(Command.query.filter_by(
-        clientname=form.clientname.data,
-        clientid=form.clientid.data,
-        pending=True,
-    ).all())
+    """
+    This is where the client ping us for their 
+    next set of commands.
+
+    :return json: the pending commands
+    """
+    form=PingForm()
+    return json.dumps(list(map(
+        lambda command: (command.id, command.command,),
+        Command.query.filter_by(
+                clientid=form.clientid.data,
+                pending=True,
+        ).all(),
+    )))
