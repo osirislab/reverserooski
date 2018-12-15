@@ -11,22 +11,23 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {{ bootstrap.load_css() }}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> 
+        {# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> #}
+        {# <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> #} 
     </head>
 {% endblock %}
 
 <body>
-<nav class="navbar navbar-inverse" id="top-navbar">
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark" id="top-navbar">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/" id="index-nav">Website</a>
+            <a class="navbar-brand" href="/" id="index-nav">Reverseroski</a>
         </div>
 
         {% block navbar %}
             <ul class="nav navbar-nav">
                 {% for tab in ltabs %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/{{ tab }}">{{ tab }}</a>
+                        <a class="nav-link" href="/{{ tab.link }}">{{ tab.text }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -34,22 +35,23 @@
             <ul class="nav navbar-nav navbar-right">
                 {% for tab in rtabs %}
                     <li class="nav-item">
-                        <a class="nav-link" id="{{ tab }}-nav" href="/{{ tab }}">{{ tab }}</a>
+                        <a class="nav-link" id="{{ tab.text }}-nav" href="/{{ tab.link }}">{{ tab.text }}</a>
                     </li>
                 {% endfor %}
-                {% if g.username %}
+                {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="navbar-brand">{{ g.username }}</a>
+                        <a class="nav-link" class="navbar-brand">{{ current_user.name }}</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="navbar-brand" id="profile-nav" href="/profile">profile</a>
+                    <li id="logout-nav" class="nav-item">
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-info btn-sm">
+                            Logout
+                        </a>
                     </li>
-                    <li id="logout-nav">
-                        <a href="/auth/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
-                    </li class="nav-item">
                 {% else %}
                     <li class="nav-item">
-                        <a href="/auth/login"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-info btn-sm">
+                            Login
+                        </a>
                     </li>
                 {% endif %}
             </ul>
@@ -60,38 +62,26 @@
 
 <div class="container-fluid">
     <div class="content">
-        {% for code, message in get_flashed_messages() %}
-            {% if code == "error" %}
-                <div class="alert alert-danger alert-dismissible">
-                    <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                    <strong>{{ message }}</strong>
-                </div>
-            {% elif code == "success" %}
-                <div class="alert alert-success alert-dismissible">
-                    <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                <strong>{{ message }}</strong>
-            </div>
-            {% endif %}
-        {% endfor %}
         {% block content %}
         {% endblock %}
     </div>
 </div>
+
+<footer>
+    {{ bootstrap.load_js() }}
+    <script>
+        $(document).ready(function() {
+            var navbar = document.getElementById("top-navbar");
+            var nav_items = navbar.getElementsByTagName('a');
+
+            for (var i=0; i<nav_items.length; ++i) {
+                if (nav_items.item(i).href.toString() == document.location.toString()) {
+                    nav_items.item(i).className += " active";
+                    break;
+                };
+            };
+        });
+    </script>
+</footer>
 </body>
-
-{{ bootstrap.load_js() }}
-
-<script>
-    $(document).ready(function() {
-        var navbar = document.getElementById("top-navbar");
-        var nav_items = navbar.getElementsByTagName('a');
-
-        for (var i=0; i<nav_items.length; ++i) {
-            if (nav_items.item(i).href.toString() == document.location.toString()) {
-                nav_items.item(i).className += " active";
-                break;
-            }
-        }
-    })
-</script>
 </html>
