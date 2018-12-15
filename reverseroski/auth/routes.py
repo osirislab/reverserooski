@@ -24,7 +24,7 @@ def register():
         except IntegrityError:
             db.session.rollback()
             flash('Username already in use')
-            return render_template('register.html', form=form)
+            return render_template('auth/register.html', form=form)
     return render_template('auth/register.html', form=form)
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -36,7 +36,7 @@ def login():
         u = (User.query.filter_by(username=form.username.data)).first()
         if u is None or not u.check_password(form.password.data):
             flash('Invalid username or password')
-            return render_template('login.html', form=form)
+            return render_template('auth/login.html', form=form)
         login_user(u)
         return redirect(url_for('index'))
     return render_template('auth/login.html', form=form)

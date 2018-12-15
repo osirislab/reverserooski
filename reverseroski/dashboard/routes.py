@@ -59,7 +59,7 @@ def serve_dashboard():
         navitems=get_navitems(),
     )
 
-@dashboard.route('/view/<clentid:int>')
+@dashboard.route('/view/<int:clientid>')
 @login_required
 def serve_view(clientid):
     return render_template(
