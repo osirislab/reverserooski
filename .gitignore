@@ -5,3 +5,6 @@ logs
 
 *.db
 __pycache__
+
+
+reverseroski/config.py
