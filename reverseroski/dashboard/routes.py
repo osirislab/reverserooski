@@ -55,15 +55,15 @@ def make_client_table(clientid):
 @login_required
 def serve_dashboard():
     return render_template(
-        'dashboard.html',
-        navitems=get_navitems(),
+        'dashboard/dashboard.html',
+        navitems=get_navitems()
     )
 
 @dashboard.route('/view/<int:clientid>')
 @login_required
 def serve_view(clientid):
     return render_template(
-        'dashboard_view.html',
+        'dashboard/view.html',
         navitems=get_navitems(),
         table_data=make_client_table(clientid)
     )
