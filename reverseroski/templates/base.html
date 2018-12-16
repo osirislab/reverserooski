@@ -11,25 +11,22 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {{ bootstrap.load_css() }}
-        {# <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> #}
-        {# <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> #} 
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">  
     </head>
 {% endblock %}
 
-<body>
+<body class="bg-dark">
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark" id="top-navbar">
     <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/" id="index-nav">Reverseroski</a>
-        </div>
 
         {% block navbar %}
-            <ul class="nav navbar-nav">
-                {% for tab in ltabs %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/{{ tab.link }}">{{ tab.text }}</a>
-                    </li>
-                {% endfor %}
+            <ul class="nav navbar-nav navbar-left">
+                <li class="navbar">
+                    <a class="navbar-brand" href="/" id="index-nav">Reverseroski</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">dashboard</a>
+                </li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
