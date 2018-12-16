@@ -25,5 +25,5 @@ app.register_blueprint(dashboard)
 @app.route('/')
 @login_required
 def index():
-    return render('index.html')
+    return render_template('index.html')
 
