@@ -7,13 +7,13 @@ import json
 import subprocess
 import sys
 
-session=request.session()
+session=requests.session()
 
 
-CLIENTNAME="`clientname`"
+CLIENTNAME="`hostname`"
 UNAME="`uname -a`"
 HOST="`echo $HOST`"
-CLIENTID=json.loads(session.post('http://' + HOST + '/client/register_client',data={
+CLIENTID=json.loads(session.post('http://' + HOST + '/client/register',data={
     'clientname':CLIENTNAME,
     'uname':UNAME,
 }).text)['clientid']
