@@ -24,7 +24,7 @@ def get_navitems():
     clients=Client.query.filter_by().all()
     return [
         NavItem(
-            text=client.hostname,
+            text=client.clientname,
             link="/dashboard/view/{clientid}".format(
                 clientid=client.id
             )
