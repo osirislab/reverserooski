@@ -1,0 +1,22 @@
+{% extends 'dashboard/dashboard.html' %}
+
+{% block dashboard_content %}
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                {% for header in table_data.headers %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in table_data.get_body() %}
+                <tr>
+                    {% for i in row %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

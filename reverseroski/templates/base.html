@@ -15,13 +15,13 @@
     </head>
 {% endblock %}
 
-<body class="bg-dark">
+<body style="background-color: grey;">
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark" id="top-navbar">
     <div class="container-fluid">
 
         {% block navbar %}
-            <ul class="nav navbar-nav navbar-left">
-                <li class="navbar">
+            <ul class="navbar-nav navbar-left">
+                <li class="nav-item">
                     <a class="navbar-brand" href="/" id="index-nav">Reverseroski</a>
                 </li>
                 <li class="nav-item">
@@ -29,7 +29,7 @@
                 </li>
             </ul>
 
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="navbar-nav navbar-right">
                 {% for tab in rtabs %}
                     <li class="nav-item">
                         <a class="nav-link" id="{{ tab.text }}-nav" href="/{{ tab.link }}">{{ tab.text }}</a>
