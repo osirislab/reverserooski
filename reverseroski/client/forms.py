@@ -8,3 +8,7 @@ class RegisterClientForm(FlaskForm):
 
 class PingForm(FlaskForm):
     clientid=TextField('clientid', validators=[Required()])
+
+class SubmitPendingForm(FlaskForm):
+    clientid=TextField('clientid')
+    report=TextField('report')

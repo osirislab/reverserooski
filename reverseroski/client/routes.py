@@ -48,11 +48,30 @@ def get_pending():
 
     :return json: the pending commands
     """
-    form=PingForm()
     return json.dumps(list(map(
         lambda command: (command.id, command.command,),
         Command.query.filter_by(
-                clientid=form.clientid.data,
+                clientid=request.form['clientid'],
                 pending=True,
         ).all(),
     )))
+
+@client.route('/submit_pending', methods=['POST'])
+def submit_pending():
+    """
+    report := {
+        commandid : stdout, 
+        ...
+    }
+    """
+    clientid=request.form['clientid']
+    report=json.loads(request.form['report'])
+    commandids=list(report.keys())
+    commands=Command.query.filter(
+        Command.id in commandids,
+        Command.pending==False
+    )
+    for c in commands:
+        c.set_stdout(report[c.id])
+    db.session.commit()
+    
