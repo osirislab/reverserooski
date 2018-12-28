@@ -37,7 +37,8 @@ class Command(db.Model):
     def get_id(self):
         return self.id
 
-    def set_stdout(self, stdout):
+    def set_stdout(self, stdout, set_pending=True):
+        self.pending = True if set_pending else self.pending
         self.stdout=stdout
 
 class Client(db.Model):
