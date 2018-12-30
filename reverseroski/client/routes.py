@@ -63,14 +63,15 @@ def submit_pending():
         ...
     }
     """
-    clientid=request.form['clientid']
-    report=json.loads(request.form['report'])
-    commandids=list(report.keys())
+    clientid=request.json['clientid']
+    report=request.json['report']
     commands=Command.query.filter(
-        Command.id in commandids,
-        Command.pending==False
-    )
-    for c in commands:
-        c.set_stdout(report[c.id])
-    db.session.commit()
+        *(Command.id==c
+        for c in report.keys())
+    ).all()
     
+    for c in commands:
+        c.stdout=report[c.id]
+        c.pending=False
+    db.session.commit()
+    return ''

