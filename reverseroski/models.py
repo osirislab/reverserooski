@@ -1,6 +1,19 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+from Crypto import Random
 from flask_login import UserMixin
 from .app import db
+
+rand=Random.new()
+
+def get_random(n=128):
+    """
+    Reads out n bytes from Random object, and 
+    returns their hex equivilant.
+    
+    :param n str: amount of bytes to read
+    :return str: n length string of random chars
+    """
+    return rand.read(n // 2).hex()
 
 class struct:
     def __init__(self, **kwargs):
@@ -28,8 +41,16 @@ class Command(db.Model):
     pending=db.Column(db.Boolean(), unique=False, index=False)
     stdout=db.Column(db.Text(), unique=False, index=False)
 
+    def check_key(self, key):
+        return self.get_client().check_key(key)
+
     def get_clientid(self):
         return self.clientid
+
+    def get_client(self):
+        return Client.query.filter_by(
+            id=self.clientid
+        ).first()
 
     def get_command(self):
         return self.command
@@ -44,8 +65,19 @@ class Command(db.Model):
 class Client(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     clientname=db.Column(db.String(128), unique=False, index=False)
-    uname=db.Column(db.String(123), unique=False, index=False)
+    uname=db.Column(db.String(128), unique=False, index=False)
+    key=db.Column(db.String(128), unique=True, index=False)
+    lastping=db.DateTime()
     registration_time=db.DateTime()
+
+    def check_key(self, key):
+        return check_password_hash(self.key, key)
+
+    def set_key(self):
+        self.key=generate_password_hash(get_random())
+
+    def get_key(self):
+        return self.key
 
     def get_clientname(self):
         return self.clientname

@@ -6,6 +6,6 @@ class ClientTable(struct):
 
     def get_body(self):
         return zip(*([
-            c.__getattr__(header)
-            for header in headers
+            c.__getattribute__(header)
+            for header in self.headers
         ] for c in self.client.get_all_commands()))

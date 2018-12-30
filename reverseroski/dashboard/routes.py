@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
 from .models import ClientTable
+from .forms import SubmitCommandForm
 
 from ..models import Client, Command, NavItem
 from ..app import db
@@ -59,13 +60,27 @@ def serve_dashboard():
         navitems=get_navitems()
     )
 
-@dashboard.route('/view/<int:clientid>')
+@dashboard.route('/view/<int:clientid>', methods=['GET','POST'])
 @login_required
 def serve_view(clientid):
+    form=SubmitCommandForm()
+    if form.validate_on_submit():
+        try:
+            c=Command(
+                clientid=clientid,
+                pending=True,
+                command=form.command.data,
+            )
+            db.session.add(c)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash('error adding command to database')
     return render_template(
         'dashboard/view.html',
         navitems=get_navitems(),
-        table_data=make_client_table(clientid)
+        table_data=make_client_table(clientid),
+        form=form
     )
 
 

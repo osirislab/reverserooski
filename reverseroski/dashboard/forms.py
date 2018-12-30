@@ -5,3 +5,7 @@ from wtforms.validators import Required
 # class RegisterClientForm(FlaskForm):
 #     hostname = TextField('hostname', validators=[Required()])
 #     uname = TextField('uname', validators=[Required()])
+
+class SubmitCommandForm(FlaskForm):
+    command=TextField('command', validators=[Required()])
+    submit=SubmitField('submit')

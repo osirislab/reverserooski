@@ -16,10 +16,12 @@ db = SQLAlchemy(app)
 
 
 from .auth import auth
-from .client import client
-from .dashboard import dashboard
 app.register_blueprint(auth)
+
+from .client import client
 app.register_blueprint(client)
+
+from .dashboard import dashboard
 app.register_blueprint(dashboard)
 
 @app.route('/')

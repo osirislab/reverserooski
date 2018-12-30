@@ -31,11 +31,10 @@ def register_client():
             uname=request.form['uname'],
             registration_time=datetime.utcnow(),
         )
+        c.set_key()
         db.session.add(c)
         db.session.commit()
-        return json.dumps({
-            'clientid':str(c.get_id()),
-        })
+        return json.dumps([c.get_id(), c.get_key()])
     except IntegrityError as e:
         db.session.rollback()
     return 'err'
