@@ -1,11 +1,14 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from Crypto import Random
 from flask_login import UserMixin
+from datetime import datetime
+from Crypto import Random
+from hashlib import sha256
+
 from .app import db
 
 rand=Random.new()
 
-def get_random(n=128):
+def get_random():
     """
     Reads out n bytes from Random object, and 
     returns their hex equivilant.
@@ -13,7 +16,7 @@ def get_random(n=128):
     :param n str: amount of bytes to read
     :return str: n length string of random chars
     """
-    return rand.read(n // 2).hex()
+    return sha256(rand.read(256).encode()).hexdigest()
 
 class struct:
     def __init__(self, **kwargs):
@@ -35,11 +38,12 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
 class Command(db.Model):
-    id=db.Column(db.Integer, primary_key=True)
+    id=db.Column(db.String(32), default=get_random, unique=True, primary_key=True)
     clientid=db.Column(db.Integer, unique=False, index=False)
     command=db.Column(db.String(256), unique=False, index=False)
     pending=db.Column(db.Boolean(), unique=False, index=False)
     stdout=db.Column(db.Text(), unique=False, index=False)
+    timestamp=db.Column(db.DateTime, default=datetime.utcnow)
 
     def check_key(self, key):
         return self.get_client().check_key(key)
@@ -63,12 +67,12 @@ class Command(db.Model):
         self.stdout=stdout
 
 class Client(db.Model):
-    id=db.Column(db.Integer, primary_key=True)
+    id=db.Column(db.String(32), default=get_random, unique=True, primary_key=True)
     clientname=db.Column(db.String(128), unique=False, index=False)
     uname=db.Column(db.String(128), unique=False, index=False)
     key=db.Column(db.String(128), unique=True, index=False)
-    lastping=db.DateTime()
-    registration_time=db.DateTime()
+    lastping=db.Column(db.DateTime(), default=datetime.utcnow())
+    registration_time=db.Column(db.DateTime)
 
     def check_key(self, key):
         return check_password_hash(self.key, key)

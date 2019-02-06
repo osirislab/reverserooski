@@ -26,7 +26,7 @@ def get_navitems():
     return [
         NavItem(
             text=client.clientname,
-            link="/dashboard/view/{clientid}".format(
+            link="/dashboard/client/{clientid}".format(
                 clientid=client.id
             )
         ) for client in clients
@@ -60,9 +60,9 @@ def serve_dashboard():
         navitems=get_navitems()
     )
 
-@dashboard.route('/view/<int:clientid>', methods=['GET','POST'])
+@dashboard.route('/client/<clientid>', methods=['GET','POST'])
 @login_required
-def serve_view(clientid):
+def client_view(clientid):
     form=SubmitCommandForm()
     if form.validate_on_submit():
         try:
@@ -77,28 +77,23 @@ def serve_view(clientid):
             db.session.rollback()
             flash('error adding command to database')
     return render_template(
-        'dashboard/view.html',
+        'dashboard/client.html',
         navitems=get_navitems(),
+        client=Client.query.filter_by(id=clientid).first(),
         table_data=make_client_table(clientid),
         form=form
     )
 
+@dashboard.route('/command/<command>', methods=['GET','POST'])
+@login_required
+def command_view(commandid):
+    command=Command.query.filter_by(id=commandid).first()
+    return render_template(
+        'dashboard/command.html',
+        client=Client.query.filter_by(id=command.clientid).first(),
+        table_data=make_client_table(clientid),
+        navitems=get_navitems(),
+        command=command,
+        form=form
+    )
 
-# @client.route('/register', methods=['POST'])
-# def register_client():
-#     form = RegisterClientForm()
-#     if form.validate_on_submit():
-#         try:
-#             c=Client(
-#                 clientname=form.clientname.data,
-#                 uname=form.uname.data,
-#                 registration_time=datetime.utcnow(),
-#             )
-#             db.session.add(c)
-#             db.session.commit()
-#             return json.dumps({
-#                 'hostid':str(c.get_id()),
-#             })
-#         except IntegrityError:
-#             db.session.rollback()
-#     return ''

@@ -13,9 +13,11 @@
         </thead>
         <tbody>
             {% for row in table_data.get_body() %}
-                <tr>
+                <tr class="clickable-row" data-href="{{ row.link }}">
                     {% for i in row %}
-                        <td>{{ i }}</td>
+                        <td>
+                                {{ i }}
+                        </td>
                     {% endfor %}
                 </tr>
             {% endfor %}
