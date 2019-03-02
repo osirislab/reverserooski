@@ -1,0 +1,17 @@
+stages:
+  - build
+  - deploy
+
+build_it:
+  stage: build
+  tags:
+    - rev
+  script:
+    - make build
+
+deploy_it:
+  stage: deploy
+  tags:
+    - rev
+  script:
+    - make deploy

@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik
+    container_name: traefik_revi
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./acme.json:/etc/traefik/acme/acme.json"
+      - "./traefik.toml:/etc/traefik/traefik.toml"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: always
+    labels:
+      - "traefik.port=8080"
+      - "traefik.enabled=true"
+      - "traefik.backend=traefik"
+      #- "traefik.frontend.auth.basic.users="
+      - "traefik.frontend.rule=Host:revi.osiris.cyber.nyu.edu"
+    networks:
+      - traefik-proxy
+  
+  reverserooski:
+    build: .
+    container_name: reverserooski
+    expose:
+      - "5000"
+    volumes:
+      - "./.data:/flasq/web/.data:rw"
+    links:
+      - "db:db"
+    environment:
+      - "PORT=5000"
+      - "WORKERS=8"
+    restart: always
+    labels:
+      - "traefik.port=5000"
+      - "traefik.enabled=true"
+      - "traefik.fontend.rule=Host:revi.osiris.cyber.nyu.edu"
+    networks:
+      - traefik-proxy
+
+  db:
+    image: mariadb:10.4
+    container_name: db_revi
+    expose:
+      - "3306"
+    volumes:
+      - "./.data/db:/var/lib/mysql:rw"
+    environment:
+      - "MYSQL_USER=rev"
+      - "MYSQL_PASSWORD=password"
+      - "MYSQL_ROOT_PASSWORD=password"
+
+
+networks:
+  traefik-proxy:
+    external:
+      name: traefik-proxy
