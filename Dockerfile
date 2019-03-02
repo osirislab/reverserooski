@@ -1,12 +1,7 @@
-FROM python:3.7
-MAINTAINER big_J
+FROM jmc1283/flasq-base
 
-ENV NAME=reverseroski
-ENV PORT=5000
+RUN apk add --update gcc g++ make libffi-dev openssl-dev && rm -rf /var/cache/apk/
+COPY ./requirements.txt /flasq/
+RUN  pip3 install -r requirements.txt
 
-COPY . /${NAME}
-WORKDIR /${NAME}
-
-RUN pip install -r requirements.txt
-
-CMD gunicorn -b 0.0.0.0:${PORT} -w 8 reverseroski:app
+COPY . /flasq
