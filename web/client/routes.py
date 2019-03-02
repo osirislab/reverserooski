@@ -16,10 +16,10 @@ client = Blueprint('client', __name__, url_prefix='/client')
 @client.route('/')
 def serve_client():
     return open(
-        'reverseroski/client/shell/shell.sh'
+        'web/client/shell/shell.sh'
     ).read().format(
         python=open(
-            'reverseroski/client/shell/shell.py'
+            'web/client/shell/shell.py'
         ).read(),
     )
 

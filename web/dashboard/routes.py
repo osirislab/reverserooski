@@ -13,12 +13,12 @@ dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 def get_navitems():
     """
-    TODO: Make this cacheable 
+    TODO: Make this cacheable
 
-    Makes a iterble list of NavItems that will be 
-    used in the dashboard template. The NavItems will 
-    correspond to each registered client.The NavItem class 
-    is defined in reverseroski/reverseroski/models.py.
+    Makes a iterble list of NavItems that will be
+    used in the dashboard template. The NavItems will
+    correspond to each registered client.The NavItem class
+    is defined in web/models.py.
 
     :return [ NavItem ]: list of NavItem objects
     """
@@ -34,15 +34,15 @@ def get_navitems():
 
 def make_client_table(clientid):
     """
-    Makes a table object from client data. Used in the 
-    dashboard client view. The table object is used in 
+    Makes a table object from client data. Used in the
+    dashboard client view. The table object is used in
     the dashboard jinja template. The ClientTable class
-    is defined in reverseroski/reverseroski/models.py. 
-    
+    is defined in web/models.py.
+
     :param int clientid: id number for client
     :return ClientTable: client table object
     """
-    client=Client.query.filter_by(id=clientid).first()
+    client=Client.query(clientid)
     return ClientTable(
         headers=[
             'timestamp',
