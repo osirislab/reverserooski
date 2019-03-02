@@ -1,8 +1,10 @@
 venv
 env
 
+web/.data
+.data
+
 logs
 
-reverseroski/data
 *.db
 __pycache__
