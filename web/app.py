@@ -9,11 +9,10 @@ from .config import Config
 
 app=Flask(__name__,static_url_path='/static')
 
-app.config.from_object(Config)
+app.config.from_object(Config())
 
 Bootstrap(app)
 db = SQLAlchemy(app)
-
 
 from .auth import auth
 app.register_blueprint(auth)

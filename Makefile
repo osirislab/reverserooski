@@ -5,12 +5,12 @@ PYTHON_VERSION=`which python3`
 
 # Docker
 DOCKER_OPTIONS=--rm -p 5000:5000
-DOCKER_DEPLOY_OPTIONS=
+DOCKER_DEPLOY_OPTIONS=-d
 DOCKER_IMAGE_NAMES=reverserooski_reverserooski mariadb traefik jmc1283/flasq-base
 
 .PHONY: all deploy buildall buildbase build run kill clean setup debug
 
-all: build rund
+all: deploy
 buildall: buildbase build
 
 ############################################################
@@ -22,21 +22,19 @@ buildall: buildbase build
 #                                                          #
 ############################################################
 
-deploy:
-	if ! docker network ls | grep "traefik-proxy"; then \
-		docker network create traefik-proxy; \
-	fi
+deploy: check_proxy
 	docker-compose kill
 	docker-compose rm -f
-	docker-compose up --build -d --force-recreate ${DOCKER_DEPLOY_OPTIONS}
+	docker-compose up --build --force-recreate ${DOCKER_DEPLOY_OPTIONS}
 
 buildbase:
 	docker build -t jmc1283/flasq-base base
 
-run: killd build
+run: check_proxy kill build
+	docker-compose up -d db
 	docker-compose run ${DOCKER_OPTIONS} reverserooski
 
-cleand: killd
+clean: kill
 	docker system prune -f
 	if [ -n "`docker image list -q | grep ${DOCKER_IMAGE_NAME}`" ]; then \
 		docker rmi ${DOCKER_IMAGE_NAMES}; \
@@ -45,18 +43,23 @@ cleand: killd
 	if [ -d ${ENV_NAME} ]; then \
 		rm -rf ${ENV_NAME}; \
 	fi
-	if [ -n "`find . -name -type f __pycache__`" ]; then \
-		rm -rf `find . -name -type f __pycache__`; \
+	if [ -n "`find . -type f -name __pycache__`" ]; then \
+		rm -rf `find . -type f -name __pycache__`; \
 	fi
-	if [ -n "`find . -name -type d .data`" ]; then \
-		rm -rf `find . -name -type d .data`; \
+	if [ -n "`find . -type d -name .data`" ]; then \
+		rm -rf `find . -type d -name .data`; \
 	fi
 
 build:
 	docker-compose build
 
 kill:
-	docker-compose kill
+	docker-compose kill reverserooski
+
+check_proxy:
+	if [ -z "`docker network ls | grep traefik-proxy`" ]; then \
+		docker network create traefik-proxy; \
+	fi
 
 
 ##########################################################
@@ -79,6 +82,7 @@ setup:
 	which virtualenv && pip install virtualenv || true
 	virtualenv -p ${PYTHON_VERSION} ${ENV_NAME}
 	./${ENV_NAME}/bin/pip install -r base/requirements.txt
+	./${ENV_NAME}/bin/pip install -r requirements.txt
 
 debug:
 	if [ ! -d ${ENV_NAME} ]; then \

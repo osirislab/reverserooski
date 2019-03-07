@@ -1,58 +1,64 @@
 version: '3'
 
 services:
-  traefik:
-    image: traefik
-    container_name: traefik_revi
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "./acme.json:/etc/traefik/acme/acme.json"
-      - "./traefik.toml:/etc/traefik/traefik.toml"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    restart: always
-    labels:
-      - "traefik.port=8080"
-      - "traefik.enabled=true"
-      - "traefik.backend=traefik"
-      #- "traefik.frontend.auth.basic.users="
-      - "traefik.frontend.rule=Host:revi.osiris.cyber.nyu.edu"
-    networks:
-      - traefik-proxy
+  # traefik:
+  #   image: traefik
+  #   container_name: traefik_revi
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - "./acme.json:/etc/traefik/acme/acme.json"
+  #     - "./traefik.toml:/etc/traefik/traefik.toml"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   labels:
+  #     - "traefik.port=8080"
+  #     - "traefik.enabled=true"
+  #     - "traefik.backend=traefik"
+  #     #- "traefik.frontend.auth.basic.users="
+  #     - "traefik.frontend.rule=Host:revi.osiris.cyber.nyu.edu"
+  #   networks:
+  #     - traefik-proxy
   
   reverserooski:
     build: .
+    image: d.bigj.info/reverserooski
     container_name: reverserooski
     expose:
       - "5000"
+    ports:
+      - "5000:5000"
     volumes:
-      - "./.data:/flasq/web/.data:rw"
-    links:
-      - "db:db"
+      - "./.data/log:/flasq/.data/log:rw"
+      - "./.data/sqlite:/flasq/web/.data/db:rw"
     environment:
       - "PORT=5000"
       - "WORKERS=8"
-    restart: always
+      - "SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:password@db/revi?charset=utf8?host=db"
+      - "DB_HOST=db"
+    #restart: always
     labels:
       - "traefik.port=5000"
       - "traefik.enabled=true"
       - "traefik.fontend.rule=Host:revi.osiris.cyber.nyu.edu"
+    depends_on:
+      - db
     networks:
       - traefik-proxy
 
   db:
-    image: mariadb:10.4
+    build: db
     container_name: db_revi
+    command: mysqld --skip-name-resolve
     expose:
       - "3306"
     volumes:
-      - "./.data/db:/var/lib/mysql:rw"
+      - "./.data/mysql:/var/lib/mysql:rw"
     environment:
-      - "MYSQL_USER=rev"
-      - "MYSQL_PASSWORD=password"
+      - "MYSQL_DATABASE=revi"
       - "MYSQL_ROOT_PASSWORD=password"
-
+    networks:
+      - traefik-proxy
 
 networks:
   traefik-proxy:

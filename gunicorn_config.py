@@ -7,5 +7,6 @@ bind='0.0.0.0:{}'.format(PORT)
 workers=int(WORKERS)
 application='web:app'
 preload_app=True
-errorlog='web/.data/log/error.log'
+loglevel='DEBUG'
+#errorlog='.data/log/error.log'
 

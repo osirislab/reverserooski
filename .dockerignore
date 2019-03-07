@@ -1,11 +1,18 @@
 venv
 env
 
-setup.sh
-run.sh
+docker-compose.yml
+traefik.toml
+Dockerfile
+README.md
+Makefile
+base
 
 dev.py
 
 .git
 .gitignore
-
+.mysql
+.gitlab-ci.yml
+.dockerignore
+.data

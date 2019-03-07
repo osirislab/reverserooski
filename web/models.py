@@ -6,13 +6,16 @@ from hashlib import sha256
 
 from .app import db
 
+
 rand=Random.new()
+
 
 def get_now():
     """
     make EST adjusted datetime object for current time
     """
     return datetime.now(tz=timezone(timedelta(hours=-5)))
+
 
 def get_random():
     """
@@ -23,10 +26,17 @@ def get_random():
     """
     return sha256(rand.read(256).encode()).hexdigest()
 
+
 class struct:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             self.__setattr__(key, val)
+
+
+class NavItem(struct):
+    text=''
+    link=''
+
 
 class User(db.Model, UserMixin):
     id=db.Column(db.Integer, primary_key=True)
@@ -54,7 +64,7 @@ class Client(db.Model):
     lastping=db.Column(db.DateTime(), default=get_now())
     registration_time=db.Column(db.DateTime, default=get_now())
 
-    owner=db.relationship('Users', backref=db.backref('clients', lazy=True))
+    owner=db.relationship('user', backref=db.backref('clients', lazy=True))
 
     def check_key(self, key):
         return check_password_hash(self.key, key)
@@ -68,9 +78,10 @@ class Client(db.Model):
             self.commands
         )
 
+
 class Command(db.Model):
     id=db.Column(db.String(32), default=get_random, unique=True, primary_key=True)
-    clientid=db.Column(db.Integer, db.ForeignKey('client.id'))
+    clientid=db.Column(db.String(32), db.ForeignKey('client.id'))
 
     command=db.Column(db.String(256), unique=False, index=False)
     pending=db.Column(db.Boolean(), unique=False, index=False)
@@ -79,7 +90,7 @@ class Command(db.Model):
     creation_time=db.Column(db.DateTime(), default=get_now())
     submission_time=db.Column(db.DateTime(), default=None, nullable=True)
 
-    owner=db.relationship('Client', backref=db.backref('commands', lazy=True))
+    owner=db.relationship('client', backref=db.backref('commands', lazy=True))
 
     def check_key(self, key):
         return self.get_client().check_key(key)
@@ -88,7 +99,3 @@ class Command(db.Model):
         self.pending = True if set_pending else self.pending
         self.stdout=stdout
         self.submission_time=get_now()
-
-class NavItem(struct):
-    text=''
-    link=''

@@ -3,6 +3,7 @@ env
 
 web/.data
 .data
+.mysql
 
 logs
 
