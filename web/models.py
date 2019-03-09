@@ -24,7 +24,7 @@ def get_random():
     :param n str: amount of bytes to read
     :return str: n length string of random chars
     """
-    return sha256(rand.read(256).encode()).hexdigest()
+    return sha256(rand.read(256)).hexdigest()
 
 
 class struct:
@@ -57,14 +57,14 @@ class Client(db.Model):
     id=db.Column(db.String(32), default=get_random, unique=True, primary_key=True)
     ownerid=db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    clientname=db.Column(db.String(128), unique=False, index=False)
+    clientname=db.Column(db.String(128), unique=False, index=False) #hostname
     uname=db.Column(db.String(128), unique=False, index=False)
     key=db.Column(db.String(128), unique=False, index=False)
 
     lastping=db.Column(db.DateTime(), default=get_now())
     registration_time=db.Column(db.DateTime, default=get_now())
 
-    owner=db.relationship('user', backref=db.backref('clients', lazy=True))
+    owner=db.relationship('User', backref=db.backref('clients', lazy=True))
 
     def check_key(self, key):
         return check_password_hash(self.key, key)
@@ -90,7 +90,7 @@ class Command(db.Model):
     creation_time=db.Column(db.DateTime(), default=get_now())
     submission_time=db.Column(db.DateTime(), default=None, nullable=True)
 
-    owner=db.relationship('client', backref=db.backref('commands', lazy=True))
+    owner=db.relationship('Client', backref=db.backref('commands', lazy=True))
 
     def check_key(self, key):
         return self.get_client().check_key(key)

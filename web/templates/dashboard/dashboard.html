@@ -1,29 +1,49 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="row">
-        {% if navitems | length == 0 %}
-            <p>Go pwn some fools BRUH!</p>
-        {% else %}
-            <div class="col-sm-1">
-                <nav class="navbar bg-dark navbar-dark sticky-top">
-                    <ul class="navbar-nav" style="border-color: red;">
-                        {% for item in navitems %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ item.link }}" style="color: white;">
-                                    {{ item.text }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-            </div>
-            <div class="col-sm-11">
-                <div class="container">
-                    {% block dashboard_content %}
-                    {% endblock %}
-                </div>
-            </div>
-        {% endif %}
+  <div class="row">
+    <div class="col-sm-1">
+      <nav class="navbar">
+        <ul class="navbar-nav">
+          {% for client in clients %}
+            <li class="nav-item">
+              <a class="nav-link">
+                <button class="btn btn-lg btn-info client-select" id="select:{{ client.id }}">
+                  {{ client.clientname }}
+                </button>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
     </div>
+    <div class="col-sm-10">
+      <div class="container bg-dark">
+        <ul class="list-group client-info"></ul>
+        <br>
+        <form method="POST">
+          <div class="form-group">
+            <label for="cmd">Command:</label>
+            <input type="text" class="form-control" id="cmd">
+          </div>
+        </form>
+        <br>
+        <div class="row bg-dark">
+          <div class="col">
+            <h3>Pending</h3>
+            <ul class="list-group pending-list"></ul>
+          </div>
+          <div class="col">
+            <h3>Finished</h3>
+            <ul class="list-group finished-list"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
+
+{% block "scripts" %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock "scripts" %}

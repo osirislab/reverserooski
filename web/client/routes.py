@@ -8,7 +8,7 @@ import json
 
 from .forms import RegisterClientForm, PingForm
 from ..app import db
-from ..models import Client, Command
+from ..models import Client, Command, User
 
 client = Blueprint('client', __name__, url_prefix='/client')
 
@@ -25,41 +25,40 @@ def serve_client():
 
 @client.route('/register', methods=['POST'])
 def register_client():
+    admin=User.query.filter_by(username="admin").first().id
     try:
         c=Client(
             clientname=request.form['clientname'],
             uname=request.form['uname'],
             registration_time=datetime.utcnow(),
+            ownerid=admin,
         )
         c.set_key()
         db.session.add(c)
         db.session.commit()
-        return json.dumps([c.get_id(), c.get_key()])
+        return json.dumps([c.id, c.key])
     except IntegrityError as e:
         db.session.rollback()
-    return 'err'
+    #return 'err'
 
 @client.route('/get_pending', methods=['POST'])
 def get_pending():
     """
-    This is where the client ping us for their 
+    This is where the client ping us for their
     next set of commands.
 
     :return json: the pending commands
     """
     return json.dumps(list(map(
-        lambda command: (command.id, command.command,),
-        Command.query.filter_by(
-                clientid=request.form['clientid'],
-                pending=True,
-        ).all(),
+        lambda command: command.pending,
+        Client.query.filter_by(id=request.form['clientid']).first().commands
     )))
 
 @client.route('/submit_pending', methods=['POST'])
 def submit_pending():
     """
     report := {
-        commandid : stdout, 
+        commandid : stdout,
         ...
     }
     """
@@ -69,7 +68,7 @@ def submit_pending():
         *(Command.id==c
         for c in report.keys())
     ).all()
-    
+
     for c in commands:
         c.stdout=report[c.id]
         c.pending=False

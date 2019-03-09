@@ -57,7 +57,7 @@ def make_client_table(clientid):
 def serve_dashboard():
     return render_template(
         'dashboard/dashboard.html',
-        navitems=get_navitems()
+        clients=current_user.clients
     )
 
 @dashboard.route('/client/<clientid>', methods=['GET','POST'])

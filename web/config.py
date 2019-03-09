@@ -14,7 +14,7 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS=False
     SQLALCHEMY_DATABASE_URI=os.environ.pop(
         'SQLALCHEMY_DATABASE_URI',
-        default='sqlite:///.data/db/revi.db'
+        default='sqlite:///.data/revi.db'
     )
 
     def __init__(self):

@@ -31,7 +31,6 @@ buildbase:
 	docker build -t jmc1283/flasq-base base
 
 run: check_proxy kill build
-	docker-compose up -d db
 	docker-compose run ${DOCKER_OPTIONS} reverserooski
 
 clean: kill
@@ -91,4 +90,5 @@ debug:
 	if [ ! -e web/.data ]; then \
 		mkdir web/.data; \
 	fi
+	./${ENV_NAME}/bin/python3 -c "from web import db; db.create_all()"
 	./${ENV_NAME}/bin/python ${MAIN_NAME}
