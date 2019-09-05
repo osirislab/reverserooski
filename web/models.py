@@ -99,3 +99,13 @@ class Command(db.Model):
         self.pending = True if set_pending else self.pending
         self.stdout=stdout
         self.submission_time=get_now()
+
+    def dump(self):
+        return {
+            'command': self.command,
+            'clientid': self.clientid,
+            'pending': self.pending,
+            'stdout': self.stdout,
+            'creation_time': self.creation_time,
+            'finish_time': self.submission_time,
+        }

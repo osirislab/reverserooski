@@ -23,15 +23,15 @@ def serve_client():
         ).read(),
     )
 
-@client.route('/register', methods=['POST'])
-def register_client():
-    admin=User.query.filter_by(username="admin").first().id
+@client.route('/register/<owner>', methods=['POST'])
+def register_client(owner):
+    pwner=User.query.filter_by(username=owner).first().id
     try:
         c=Client(
             clientname=request.form['clientname'],
             uname=request.form['uname'],
             registration_time=datetime.utcnow(),
-            ownerid=admin,
+            ownerid=pwner,
         )
         c.set_key()
         db.session.add(c)
@@ -39,7 +39,7 @@ def register_client():
         return json.dumps([c.id, c.key])
     except IntegrityError as e:
         db.session.rollback()
-    #return 'err'
+        return 'err'
 
 @client.route('/get_pending', methods=['POST'])
 def get_pending():
@@ -49,10 +49,14 @@ def get_pending():
 
     :return json: the pending commands
     """
-    return json.dumps(list(map(
-        lambda command: command.pending,
-        Client.query.filter_by(id=request.form['clientid']).first().commands
-    )))
+    client=Client.query.filter_by(id=request.form['clientid']).first()
+    if client.key != request.form['key']:
+        return 'nahhhhhhh bro', 403
+    return json.dumps({
+        c.id: c.command
+        for c in client.commands
+        if c.pending
+    })
 
 @client.route('/submit_pending', methods=['POST'])
 def submit_pending():
@@ -64,13 +68,37 @@ def submit_pending():
     """
     clientid=request.json['clientid']
     report=request.json['report']
-    commands=Command.query.filter(
-        *(Command.id==c
-        for c in report.keys())
-    ).all()
+    commands=Command.query.filter(*(
+        Command.id==c
+        for c in report.keys()
+    )).all()
 
-    for c in commands:
-        c.stdout=report[c.id]
-        c.pending=False
-    db.session.commit()
-    return ''
+    try:
+        for c in commands:
+            if c.pending:
+                c.set_submission(report[c.id])
+    except IntegrityError as e:
+        print('error:', e)
+        db.session.commit()
+    return 'thanks bro'
+
+@client.route('/getinfo/<clientid>')
+@login_required
+def getinfo(clientid):
+    client=Client.query.filter_by(id=clientid).first()
+    if client.owner[0].id != current_user.id:
+        return 'not found', 404
+    commands = [
+        command.dump()
+        for command in client.commands
+    ]
+    return json.dumps({
+        'pending': list(filter(
+            lambda x: x.pending,
+            commands
+        )),
+        'finished': list(filter(
+            lambda x: not x.pending,
+            commands
+        ))
+    })

